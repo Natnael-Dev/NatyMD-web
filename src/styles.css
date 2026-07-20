@@ -1,0 +1,316 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+@import "@fontsource-variable/inter";
+@import "@fontsource-variable/jetbrains-mono";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * NatyMD design system.
+ *
+ * Dark mode is the DEFAULT — the dark palette lives on :root.
+ * The light palette is scoped to `.light` for future opt-in.
+ * <html> gets class="dark" so shadcn `dark:` variants still work.
+ *
+ * Palette (source hex → oklch):
+ *   accent/brand   #14B8A6 teal
+ *   success        #22C55E
+ *   destructive    #EF4444
+ *   bg (dark)      #0A0A0A
+ *   bg (light)     #FAFAFA
+ *
+ * Neutrals are TRUE achromatic gray (chroma = 0) — no blue/indigo drift,
+ * no "AI SaaS" hue. Accent chroma is reserved for teal/success/error only.
+ *
+ * All colors MUST use oklch format.
+ */
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+  --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono Variable", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-ring-offset-background: var(--background);
+}
+
+/* Dark palette — DEFAULT */
+:root {
+  --radius: 0.5rem;
+
+  /* Surfaces (#0A0A0A base, lifted grays for card/popover) */
+  --background: oklch(0.145 0 0);          /* #0A0A0A */
+  --foreground: oklch(0.96 0 0);
+  --card: oklch(0.185 0 0);
+  --card-foreground: oklch(0.96 0 0);
+  --popover: oklch(0.185 0 0);
+  --popover-foreground: oklch(0.96 0 0);
+  --secondary: oklch(0.22 0 0);
+  --secondary-foreground: oklch(0.96 0 0);
+  --muted: oklch(0.22 0 0);
+  --muted-foreground: oklch(0.62 0 0);
+  --accent: oklch(0.24 0 0);               /* subtle hover surface (shadcn semantic) */
+  --accent-foreground: oklch(0.96 0 0);
+
+  /* Brand + primary = teal #14B8A6 */
+  --brand: oklch(0.716 0.128 194.77);
+  --brand-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.716 0.128 194.77);
+  --primary-foreground: oklch(0.145 0 0);
+
+  /* Status */
+  --success: oklch(0.7227 0.192 149.58);   /* #22C55E */
+  --success-foreground: oklch(0.145 0 0);
+  --destructive: oklch(0.6368 0.2078 25.33); /* #EF4444 */
+  --destructive-foreground: oklch(0.96 0 0);
+
+  /* Lines */
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.716 0.128 194.77);
+}
+
+/* Light palette — opt-in via <html class="light"> (no toggle wired yet) */
+.light {
+  --background: oklch(0.985 0 0);          /* #FAFAFA */
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --secondary: oklch(0.96 0 0);
+  --secondary-foreground: oklch(0.145 0 0);
+  --muted: oklch(0.96 0 0);
+  --muted-foreground: oklch(0.45 0 0);
+  --accent: oklch(0.94 0 0);
+  --accent-foreground: oklch(0.145 0 0);
+
+  --brand: oklch(0.716 0.128 194.77);
+  --brand-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.716 0.128 194.77);
+  --primary-foreground: oklch(0.985 0 0);
+
+  --success: oklch(0.7227 0.192 149.58);
+  --success-foreground: oklch(0.145 0 0);
+  --destructive: oklch(0.6368 0.2078 25.33);
+  --destructive-foreground: oklch(0.985 0 0);
+
+  --border: oklch(0 0 0 / 10%);
+  --input: oklch(0 0 0 / 12%);
+  --ring: oklch(0.716 0.128 194.77);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  html {
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+  }
+
+  code,
+  pre,
+  kbd,
+  samp {
+    font-family: var(--font-mono);
+  }
+
+  :where(a, button, input, select, textarea, summary, [role="button"], [tabindex]):focus-visible {
+    outline: 2px solid var(--brand);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* NatyMD motion primitives                                            */
+/* ------------------------------------------------------------------ */
+
+@keyframes natymd-fade-up {
+  0%   { opacity: 0; transform: translateY(12px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes natymd-fade-down {
+  0%   { opacity: 0; transform: translateY(-8px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes natymd-scan {
+  0%   { transform: translateY(-100%); opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 1; }
+  100% { transform: translateY(2200%); opacity: 0; }
+}
+
+@keyframes natymd-drift {
+  0%   { transform: translate3d(0,0,0); }
+  50%  { transform: translate3d(12px,-10px,0); }
+  100% { transform: translate3d(0,0,0); }
+}
+
+@keyframes natymd-drift-alt {
+  0%   { transform: translate3d(0,0,0); }
+  50%  { transform: translate3d(-14px,8px,0); }
+  100% { transform: translate3d(0,0,0); }
+}
+
+@keyframes natymd-glow-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--brand) 30%, transparent),
+                         inset 0 0 24px 0 color-mix(in oklab, var(--brand) 6%, transparent); }
+  50%      { box-shadow: 0 0 40px 4px color-mix(in oklab, var(--brand) 22%, transparent),
+                         inset 0 0 48px 0 color-mix(in oklab, var(--brand) 12%, transparent); }
+}
+
+@keyframes natymd-flicker {
+  0%, 100% { opacity: 1; }
+  45%      { opacity: 0.35; }
+  47%      { opacity: 1; }
+  62%      { opacity: 0.55; }
+  64%      { opacity: 1; }
+}
+
+@keyframes natymd-glitch {
+  0%   { clip-path: inset(0 0 0 0); transform: translate(0,0); }
+  20%  { clip-path: inset(20% 0 60% 0); transform: translate(-1px, 0); }
+  40%  { clip-path: inset(70% 0 5% 0);  transform: translate(1px, 0); }
+  60%  { clip-path: inset(35% 0 40% 0); transform: translate(-1px, 0); }
+  80%  { clip-path: inset(5% 0 80% 0);  transform: translate(0.5px, 0); }
+  100% { clip-path: inset(0 0 0 0); transform: translate(0,0); }
+}
+
+@keyframes natymd-caret {
+  0%, 49%  { opacity: 1; }
+  50%,100% { opacity: 0; }
+}
+
+/* Phase 4 — conversion animations */
+
+@keyframes natymd-scan-beam {
+  0%   { transform: translateY(0); opacity: 0; }
+  10%  { opacity: 1; }
+  50%  { transform: translateY(140px); opacity: 1; }
+  90%  { opacity: 1; }
+  100% { transform: translateY(0); opacity: 0; }
+}
+
+@keyframes natymd-ascend {
+  0%, 20%  { opacity: 0; transform: translateY(0) rotate(0deg); }
+  35%      { opacity: 1; }
+  100%     { opacity: 0; transform: translateY(-46px) rotate(-6deg); }
+}
+
+@keyframes natymd-assemble {
+  0%, 40% { opacity: 0; transform: translateY(4px); }
+  55%     { opacity: 1; transform: translateY(0); }
+  90%     { opacity: 1; }
+  100%    { opacity: 0; }
+}
+
+@keyframes natymd-cell-pulse {
+  0%, 100% { opacity: 0.35; }
+  50%      { opacity: 0.9; }
+}
+
+@utility natymd-stagger {
+  opacity: 0;
+  animation: natymd-fade-up 700ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@utility natymd-scan-bar {
+  animation: natymd-scan 6s linear infinite;
+}
+
+@utility natymd-drift-slow {
+  animation: natymd-drift 14s ease-in-out infinite;
+}
+
+@utility natymd-drift-slow-alt {
+  animation: natymd-drift-alt 18s ease-in-out infinite;
+}
+
+@utility natymd-glow {
+  animation: natymd-glow-pulse 2.4s ease-in-out infinite;
+}
+
+@utility natymd-flicker {
+  animation: natymd-flicker 3.6s ease-in-out infinite;
+}
+
+@utility natymd-glitch {
+  animation: natymd-glitch 900ms steps(6, end) 1;
+}
+
+@utility natymd-caret {
+  animation: natymd-caret 1.1s steps(1, end) infinite;
+}
+
+@utility natymd-scan-beam {
+  animation: natymd-scan-beam 2.4s ease-in-out infinite;
+}
+
+@utility natymd-ascend {
+  animation: natymd-ascend 2.4s ease-in-out infinite;
+}
+
+@utility natymd-assemble {
+  animation: natymd-assemble 2.4s ease-in-out infinite;
+}
+
+@utility natymd-cell-pulse {
+  animation: natymd-cell-pulse 1.2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .natymd-stagger,
+  .natymd-scan-bar,
+  .natymd-drift-slow,
+  .natymd-drift-slow-alt,
+  .natymd-glow,
+  .natymd-flicker,
+  .natymd-glitch,
+  .natymd-caret,
+  .natymd-scan-beam,
+  .natymd-ascend,
+  .natymd-assemble,
+  .natymd-cell-pulse {
+    animation: none !important;
+    opacity: 1 !important;
+  }
+}
