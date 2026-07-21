@@ -12,21 +12,32 @@ export async function convertPdfToMarkdown(
   ensurePdfWorker();
   const { getDocument } = await import("pdfjs-dist");
 
+  const checkAborted = () => {
+    if (options.signal?.aborted) {
+      throw new DOMException("Aborted", "AbortError");
+    }
+  };
+
   const buffer = await file.arrayBuffer();
+  checkAborted();
+
   const loadingTask = getDocument({
     data: new Uint8Array(buffer),
     disableAutoFetch: true,
     disableStream: true,
   });
   const pdfDoc = await loadingTask.promise;
+  checkAborted();
 
   try {
-    const items = await extractTextItems(pdfDoc);
+    const items = await extractTextItems(pdfDoc, options.signal);
+    checkAborted();
 
     let ocrPages: number[] = [];
     let analyses: Awaited<ReturnType<typeof analyzePages>> | null = null;
     if (options.ocr?.enabled !== false) {
       analyses = await analyzePages(pdfDoc);
+      checkAborted();
       const scanned = analyses.filter((a) => a.scanned).map((a) => a.page);
       if (scanned.length > 0) {
         options.ocr?.onScannedDetected?.(scanned);
@@ -35,6 +46,7 @@ export async function convertPdfToMarkdown(
           onProgress: options.ocr?.onOcrProgress,
           signal: options.ocr?.signal,
         });
+        checkAborted();
         items.push(...ocrItems);
         ocrPages = scanned;
       }
@@ -50,14 +62,23 @@ export async function convertPdfToMarkdown(
     if (pagesToScan.length > 0) {
       if (includeImages) options.onImageExtractStart?.();
       for (const p of pagesToScan) {
+        checkAborted();
         try {
-          const pageImgs = await extractPageImages(pdfDoc, p, { enabled: includeImages });
+          const pageImgs = await extractPageImages(pdfDoc, p, {
+            enabled: includeImages,
+            signal: options.signal,
+          });
           images.push(...pageImgs);
-        } catch { /* per-page failure never aborts the doc */ }
+        } catch (e) {
+          if ((e as Error)?.name === "AbortError") throw e;
+          /* per-page failure never aborts the doc */
+        }
       }
     }
 
+    const rawText = items.map((it) => it.text).join(" ");
     const result = itemsToMarkdown(items, pdfDoc.numPages, images, includeImages);
+    result.rawText = rawText;
     if (ocrPages.length > 0) result.ocrPages = ocrPages;
     return result;
   } finally {

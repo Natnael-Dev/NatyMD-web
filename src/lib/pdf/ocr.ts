@@ -193,5 +193,6 @@ export async function ocrScannedPages(
     return allItems;
   } finally {
     signal?.removeEventListener("abort", onAbort);
+    await terminateOcrWorker();
   }
 }

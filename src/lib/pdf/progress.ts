@@ -59,6 +59,7 @@ export async function convertWithProgress(
     startExtracting();
     const result = await convertPdfToMarkdown(file, {
       includeImages: opts.includeImages ?? false,
+      signal: opts.signal,
       onImageExtractStart: () => {
         stopExtracting();
         onStage("extracting-images", 0.86);

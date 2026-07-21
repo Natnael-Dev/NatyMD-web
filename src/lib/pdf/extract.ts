@@ -52,9 +52,11 @@ function heuristicFromName(fontName: string) {
 
 export async function extractTextItems(
   pdfDoc: PDFDocumentProxy,
+  signal?: AbortSignal,
 ): Promise<TextItem[]> {
   const all: TextItem[] = [];
   for (let pageNum = 1; pageNum <= pdfDoc.numPages; pageNum++) {
+    if (signal?.aborted) throw new DOMException("Aborted", "AbortError");
     const page = await pdfDoc.getPage(pageNum);
     const viewport = page.getViewport({ scale: 1 });
     const pageHeight = viewport.height;
@@ -231,33 +233,37 @@ async function buildBitmap(img: PdfImageObj): Promise<ImageBitmap> {
 
 async function downscaleAndEncode(img: PdfImageObj): Promise<string> {
   const bitmap = await buildBitmap(img);
-  const srcW = bitmap.width;
-  const srcH = bitmap.height;
-  const scale = Math.min(1, 800 / Math.max(srcW, srcH));
-  const dstW = Math.max(1, Math.round(srcW * scale));
-  const dstH = Math.max(1, Math.round(srcH * scale));
+  try {
+    const srcW = bitmap.width;
+    const srcH = bitmap.height;
+    const scale = Math.min(1, 800 / Math.max(srcW, srcH));
+    const dstW = Math.max(1, Math.round(srcW * scale));
+    const dstH = Math.max(1, Math.round(srcH * scale));
 
-  const hasOffscreen = typeof OffscreenCanvas !== "undefined";
-  if (hasOffscreen) {
-    const canvas = new OffscreenCanvas(dstW, dstH);
+    const hasOffscreen = typeof OffscreenCanvas !== "undefined";
+    if (hasOffscreen) {
+      const canvas = new OffscreenCanvas(dstW, dstH);
+      const ctx = canvas.getContext("2d");
+      if (!ctx) throw new Error("no 2d context");
+      ctx.drawImage(bitmap, 0, 0, dstW, dstH);
+      const blob = await canvas.convertToBlob({ type: "image/jpeg", quality: 0.7 });
+      return await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result));
+        reader.onerror = () => reject(reader.error ?? new Error("read failed"));
+        reader.readAsDataURL(blob);
+      });
+    }
+    const canvas = document.createElement("canvas");
+    canvas.width = dstW;
+    canvas.height = dstH;
     const ctx = canvas.getContext("2d");
     if (!ctx) throw new Error("no 2d context");
     ctx.drawImage(bitmap, 0, 0, dstW, dstH);
-    const blob = await canvas.convertToBlob({ type: "image/jpeg", quality: 0.7 });
-    return await new Promise<string>((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(String(reader.result));
-      reader.onerror = () => reject(reader.error ?? new Error("read failed"));
-      reader.readAsDataURL(blob);
-    });
+    return canvas.toDataURL("image/jpeg", 0.7);
+  } finally {
+    bitmap.close();
   }
-  const canvas = document.createElement("canvas");
-  canvas.width = dstW;
-  canvas.height = dstH;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) throw new Error("no 2d context");
-  ctx.drawImage(bitmap, 0, 0, dstW, dstH);
-  return canvas.toDataURL("image/jpeg", 0.7);
 }
 
 /**
@@ -269,8 +275,9 @@ async function downscaleAndEncode(img: PdfImageObj): Promise<string> {
 export async function extractPageImages(
   pdfDoc: PDFDocumentProxy,
   pageNum: number,
-  opts: { enabled: boolean },
+  opts: { enabled: boolean; signal?: AbortSignal },
 ): Promise<ExtractedImage[]> {
+  if (opts.signal?.aborted) throw new DOMException("Aborted", "AbortError");
   const pdfjs = await import("pdfjs-dist");
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const OPS: Record<string, number> = (pdfjs as any).OPS ?? {};

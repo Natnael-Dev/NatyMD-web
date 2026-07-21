@@ -21,6 +21,7 @@ export type OcrProgressFn = (info: {
 
 export type ConvertOptions = {
   includeImages?: boolean;
+  signal?: AbortSignal;
   ocr?: {
     enabled?: boolean;          // default: true
     onOcrProgress?: OcrProgressFn;
@@ -38,6 +39,7 @@ export type ConvertResult = {
   warnings: string[];
   ocrPages?: number[];
   imageCount?: number;
+  rawText?: string;
 };
 
 export type PageAnalysis = {
