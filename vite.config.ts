@@ -12,4 +12,11 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+  vite: {
+    // Keep gpt-tokenizer (2.4 MB BPE vocab) out of the SSR bundle entirely —
+    // it is only used in the browser via a dynamic import() in useTokenCount.ts.
+    ssr: {
+      external: ["gpt-tokenizer"],
+    },
+  },
 });
