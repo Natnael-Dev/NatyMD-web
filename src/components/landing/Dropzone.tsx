@@ -60,7 +60,7 @@ export function Dropzone({ onFile, disabled = false, onIncludeImagesChange }: Pr
       <input
         ref={inputRef}
         type="file"
-        accept="application/pdf,.pdf"
+        accept="application/pdf,.pdf,.docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
         onChange={handleInputChange}
         className="sr-only"
         aria-hidden="true"
@@ -69,7 +69,7 @@ export function Dropzone({ onFile, disabled = false, onIncludeImagesChange }: Pr
       <div
         role="button"
         tabIndex={0}
-        aria-label="Drop a PDF or click to browse"
+        aria-label="Drop a PDF or DOCX file, or click to browse"
         onMouseEnter={() => setIsHover(true)}
         onMouseLeave={() => setIsHover(false)}
         onDragEnter={handleDragEnter}
@@ -197,7 +197,7 @@ export function Dropzone({ onFile, disabled = false, onIncludeImagesChange }: Pr
               active ? "text-brand" : "text-foreground/90",
             ].join(" ")}
           >
-            Drop a PDF here, or{" "}
+            Drop a PDF or DOCX here, or{" "}
             <span className="font-medium text-brand underline decoration-brand/40 decoration-dotted underline-offset-4">
               click to browse
             </span>
@@ -226,7 +226,7 @@ export function Dropzone({ onFile, disabled = false, onIncludeImagesChange }: Pr
       {/* File constraint line */}
       <div className="mt-4 flex items-center justify-center gap-3 font-mono text-xs text-muted-foreground">
         <span className="h-px w-8 bg-border" />
-        <span>PDF · up to 20MB</span>
+        <span>PDF, DOCX · up to 20MB</span>
         <span className="h-px w-8 bg-border" />
       </div>
 

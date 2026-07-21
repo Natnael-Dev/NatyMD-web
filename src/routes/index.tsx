@@ -70,17 +70,21 @@ function Index() {
   const handleFile = useCallback(async (file: File) => {
     const isPdf =
       file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
-    if (!isPdf) {
+    const isDocx =
+      file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
+      file.name.toLowerCase().endsWith(".docx");
+
+    if (!isPdf && !isDocx) {
       setState({
         status: "idle",
-        error: { code: "not_pdf", message: "That's not a PDF. Drop a .pdf file." },
+        error: { code: "not_pdf", message: "That's not a supported format. Drop a .pdf or .docx file." },
       });
       return;
     }
     if (file.size > MAX_BYTES) {
       setState({
         status: "idle",
-        error: { code: "oversize", message: "File exceeds 20 MB. Try a smaller PDF." },
+        error: { code: "oversize", message: "File exceeds 20 MB. Try a smaller file." },
       });
       return;
     }
@@ -98,25 +102,37 @@ function Index() {
     });
 
     try {
-      const { convertWithProgress } = await import("@/lib/pdf/progress");
-      const result = await convertWithProgress(
-        file,
-        (stage, progress, meta) => {
-          setState((prev) =>
-            prev.status === "converting"
-              ? {
-                  ...prev,
-                  stage,
-                  progress,
-                  scannedPages: meta?.scannedPages ?? prev.scannedPages,
-                  ocrPage: meta?.ocrPage ?? prev.ocrPage,
-                  ocrTotal: meta?.ocrTotal ?? prev.ocrTotal,
-                }
-              : prev,
-          );
-        },
-        { signal: controller.signal, includeImages: includeImagesRef.current },
-      );
+      let result: ConvertResult;
+      if (isDocx) {
+        setState((prev) =>
+          prev.status === "converting" ? { ...prev, stage: "extracting", progress: 0.5 } : prev,
+        );
+        const { convertDocxToMarkdown } = await import("@/lib/docx/parser");
+        result = await convertDocxToMarkdown(file);
+        setState((prev) =>
+          prev.status === "converting" ? { ...prev, stage: "assembling", progress: 1 } : prev,
+        );
+      } else {
+        const { convertWithProgress } = await import("@/lib/pdf/progress");
+        result = await convertWithProgress(
+          file,
+          (stage, progress, meta) => {
+            setState((prev) =>
+              prev.status === "converting"
+                ? {
+                    ...prev,
+                    stage,
+                    progress,
+                    scannedPages: meta?.scannedPages ?? prev.scannedPages,
+                    ocrPage: meta?.ocrPage ?? prev.ocrPage,
+                    ocrTotal: meta?.ocrTotal ?? prev.ocrTotal,
+                  }
+                : prev,
+            );
+          },
+          { signal: controller.signal, includeImages: includeImagesRef.current },
+        );
+      }
       if (fileUrlRef.current) URL.revokeObjectURL(fileUrlRef.current);
       const fileUrl = URL.createObjectURL(file);
       fileUrlRef.current = fileUrl;
@@ -134,11 +150,11 @@ function Index() {
         error: isPassword
           ? {
               code: "encrypted",
-              message: "This PDF is password-protected. NatyMD can't open it.",
+              message: "This file is password-protected. NatyMD can't open it.",
             }
           : {
               code: "parse_failed",
-              message: "Couldn't parse this PDF. It may be scanned or malformed.",
+              message: `Couldn't parse this ${isDocx ? "DOCX" : "PDF"}. It may be corrupted or malformed.`,
             },
       });
     }
@@ -152,7 +168,7 @@ function Index() {
       void import("@/lib/pdf/ocr")
         .then((m) => m.terminateOcrWorker())
         .catch(() => {});
-      return prev;
+      return { status: "idle", error: null };
     });
   }, []);
 

@@ -1,9 +1,5 @@
 const ITEMS = [
   {
-    title: "Token counter",
-    description: "See the token cost of your Markdown before you paste it.",
-  },
-  {
     title: "Preserve page breaks",
     description: "Optional markers to keep the original PDF pagination.",
   },
