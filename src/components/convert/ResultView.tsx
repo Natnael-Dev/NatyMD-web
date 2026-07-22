@@ -71,8 +71,21 @@ export function ResultView({ file, fileUrl, result, onStartOver }: Props) {
   const rawTokens = useTokenCount(result.rawText || "");
   const cleanTokens = useTokenCount(result.markdown || "");
 
-  // Guarantee that raw tokens is at least equal to clean tokens + formatting overhead estimate
-  const estimatedRawTokens = Math.max(rawTokens, Math.ceil(cleanTokens * 1.25));
+  const isPdf = file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
+  const isDocx =
+    file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
+    file.name.toLowerCase().endsWith(".docx");
+  const isTextFile = !isPdf && !isDocx;
+  const ext = isPdf
+    ? "PDF"
+    : isDocx
+      ? "DOCX"
+      : file.name.split(".").pop()?.toUpperCase() || "TEXT";
+
+  // For plain text files (.txt, .md, .csv), raw and clean token counts match unless formatting was stripped
+  const estimatedRawTokens = isTextFile
+    ? Math.max(rawTokens, cleanTokens)
+    : Math.max(rawTokens, Math.ceil(cleanTokens * 1.25));
   const savedTokens = Math.max(0, estimatedRawTokens - cleanTokens);
   const percentSaved = estimatedRawTokens > 0 ? Math.round((savedTokens / estimatedRawTokens) * 100) : 0;
 
@@ -113,7 +126,7 @@ export function ResultView({ file, fileUrl, result, onStartOver }: Props) {
     try {
       const blob = new Blob([result.markdown], { type: "text/markdown;charset=utf-8" });
       const url = URL.createObjectURL(blob);
-      const base = file.name.replace(/\.(pdf|docx)$/i, "") || "document";
+      const base = file.name.replace(/\.(pdf|docx|txt|md|csv)$/i, "") || "document";
       const a = document.createElement("a");
       a.href = url;
       a.download = `${base}.md`;
@@ -126,9 +139,6 @@ export function ResultView({ file, fileUrl, result, onStartOver }: Props) {
       toast.error("Failed to download Markdown file.");
     }
   }
-
-  const isPdf = file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
-  const ext = isPdf ? "PDF" : "DOCX";
 
   const copyLabel =
     copyStatus === "copied"
@@ -289,7 +299,7 @@ export function ResultView({ file, fileUrl, result, onStartOver }: Props) {
 
               <h3 className="font-mono text-sm font-semibold text-foreground">{file.name}</h3>
               <p className="mt-1 font-mono text-xs text-muted-foreground">
-                {(file.size / 1024).toFixed(1)} KB · Microsoft Word Document
+                {(file.size / 1024).toFixed(1)} KB · {isDocx ? "Microsoft Word Document" : `${ext} Document`}
               </p>
 
               <div className="mt-6 flex w-full max-w-sm flex-col gap-2 rounded-lg border border-border/60 bg-background/50 p-4 font-mono text-xs text-muted-foreground">
@@ -301,7 +311,7 @@ export function ResultView({ file, fileUrl, result, onStartOver }: Props) {
                 </div>
                 <div className="flex items-center justify-between">
                   <span>Document Type:</span>
-                  <span className="text-foreground">DOCX</span>
+                  <span className="text-foreground">{ext}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span>Extracted Length:</span>
