@@ -68,16 +68,24 @@ function Index() {
   }, []);
 
   const handleFile = useCallback(async (file: File) => {
+    const nameLower = file.name.toLowerCase();
     const isPdf =
-      file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
+      file.type === "application/pdf" || nameLower.endsWith(".pdf");
     const isDocx =
       file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
-      file.name.toLowerCase().endsWith(".docx");
+      nameLower.endsWith(".docx");
+    const isText =
+      file.type === "text/plain" ||
+      file.type === "text/markdown" ||
+      file.type === "text/csv" ||
+      nameLower.endsWith(".txt") ||
+      nameLower.endsWith(".md") ||
+      nameLower.endsWith(".csv");
 
-    if (!isPdf && !isDocx) {
+    if (!isPdf && !isDocx && !isText) {
       setState({
         status: "idle",
-        error: { code: "not_pdf", message: "That's not a supported format. Drop a .pdf or .docx file." },
+        error: { code: "not_pdf", message: "That's not a supported format. Drop a .pdf, .docx, .txt, .md, or .csv file." },
       });
       return;
     }
@@ -103,7 +111,16 @@ function Index() {
 
     try {
       let result: ConvertResult;
-      if (isDocx) {
+      if (isText) {
+        setState((prev) =>
+          prev.status === "converting" ? { ...prev, stage: "extracting", progress: 0.5 } : prev,
+        );
+        const { convertTextToMarkdown } = await import("@/lib/text/parser");
+        result = await convertTextToMarkdown(file);
+        setState((prev) =>
+          prev.status === "converting" ? { ...prev, stage: "assembling", progress: 1 } : prev,
+        );
+      } else if (isDocx) {
         setState((prev) =>
           prev.status === "converting" ? { ...prev, stage: "extracting", progress: 0.5 } : prev,
         );
