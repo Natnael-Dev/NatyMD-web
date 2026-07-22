@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { ConvertResult } from "@/lib/pdf/types";
 import { ActionBar } from "./ActionBar";
-import { MarkdownPreview } from "./MarkdownPreview";
 import {
   FileText,
   CheckCircle2,
@@ -64,9 +63,14 @@ function useCountUp(target: number, duration: number = 800, delay: number = 0) {
 }
 
 export function ResultView({ file, fileUrl, result, onStartOver }: Props) {
+  const [markdown, setMarkdown] = useState(result.markdown);
   const [copyStatus, setCopyStatus] = useState<"idle" | "copied" | "failed">("idle");
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [showGlow, setShowGlow] = useState(false);
+
+  useEffect(() => {
+    setMarkdown(result.markdown);
+  }, [result.markdown]);
 
   const rawTokens = useTokenCount(result.rawText || "");
   const cleanTokens = useTokenCount(result.markdown || "");
@@ -322,7 +326,7 @@ export function ResultView({ file, fileUrl, result, onStartOver }: Props) {
           )}
         </section>
 
-        {/* Right Side: Converted Markdown Preview */}
+        {/* Right Side: Converted Markdown Live Editor */}
         <section className="flex h-[50vh] min-h-0 flex-col md:h-auto">
           <div className="flex items-center justify-between border-b border-border px-4 py-2 font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
             <span>
@@ -332,8 +336,14 @@ export function ResultView({ file, fileUrl, result, onStartOver }: Props) {
               {result.markdown.length.toLocaleString()} chars
             </span>
           </div>
-          <div className="min-h-0 flex-1">
-            <MarkdownPreview markdown={result.markdown} />
+          <div className="relative min-h-0 flex-1 bg-card/20 p-2">
+            <textarea
+              value={markdown}
+              onChange={(e) => setMarkdown(e.target.value)}
+              placeholder="Edit your Markdown here..."
+              spellCheck={false}
+              className="h-full w-full resize-none bg-transparent p-3 font-mono text-xs sm:text-sm leading-relaxed text-foreground/90 placeholder:text-muted-foreground/40 focus:outline-none focus:ring-0 border-0 selection:bg-brand/20"
+            />
           </div>
         </section>
       </div>

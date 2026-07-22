@@ -156,6 +156,21 @@
     outline-offset: 2px;
     border-radius: 2px;
   }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: oklch(1 0 0 / 15%);
+    border-radius: 9999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: oklch(0.716 0.128 194.77 / 40%);
+  }
 }
 
 /* ------------------------------------------------------------------ */
