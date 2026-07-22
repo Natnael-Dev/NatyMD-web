@@ -25,6 +25,7 @@ type Props = {
 // Smooth React count-up hook for metric animations with delay support
 function useCountUp(target: number, duration: number = 800, delay: number = 0) {
   const [count, setCount] = useState(0);
+  const isFirstRender = useRef(true);
 
   useEffect(() => {
     if (target === 0) {
@@ -35,21 +36,25 @@ function useCountUp(target: number, duration: number = 800, delay: number = 0) {
     let startTimestamp: number | null = null;
     const startValue = count;
     let animationFrameId: number;
+    const actualDelay = isFirstRender.current ? delay : 0;
+    const actualDuration = isFirstRender.current ? duration : 200;
 
     const step = (timestamp: number) => {
       if (!startTimestamp) startTimestamp = timestamp;
-      const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+      const progress = Math.min((timestamp - startTimestamp) / actualDuration, 1);
       const ease = progress * (2 - progress); // easeOutQuad
       setCount(Math.floor(ease * (target - startValue) + startValue));
 
       if (progress < 1) {
         animationFrameId = window.requestAnimationFrame(step);
+      } else {
+        isFirstRender.current = false;
       }
     };
 
     const timerId = setTimeout(() => {
       animationFrameId = window.requestAnimationFrame(step);
-    }, delay);
+    }, actualDelay);
 
     return () => {
       clearTimeout(timerId);
@@ -73,7 +78,7 @@ export function ResultView({ file, fileUrl, result, onStartOver }: Props) {
   }, [result.markdown]);
 
   const rawTokens = useTokenCount(result.rawText || "");
-  const cleanTokens = useTokenCount(result.markdown || "");
+  const cleanTokens = useTokenCount(markdown || "");
 
   const isPdf = file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
   const isDocx =
@@ -114,7 +119,7 @@ export function ResultView({ file, fileUrl, result, onStartOver }: Props) {
   }, []);
 
   async function handleCopy() {
-    const success = await copyToClipboard(result.markdown);
+    const success = await copyToClipboard(markdown);
     if (success) {
       setCopyStatus("copied");
       toast.success("Copied Markdown to clipboard!");
@@ -128,7 +133,7 @@ export function ResultView({ file, fileUrl, result, onStartOver }: Props) {
 
   function handleDownload() {
     try {
-      const blob = new Blob([result.markdown], { type: "text/markdown;charset=utf-8" });
+      const blob = new Blob([markdown], { type: "text/markdown;charset=utf-8" });
       const url = URL.createObjectURL(blob);
       const base = file.name.replace(/\.(pdf|docx|txt|md|csv)$/i, "") || "document";
       const a = document.createElement("a");
@@ -333,7 +338,7 @@ export function ResultView({ file, fileUrl, result, onStartOver }: Props) {
               <span className="text-brand">▸</span> output.md
             </span>
             <span className="shrink-0">
-              {result.markdown.length.toLocaleString()} chars
+              {markdown.length.toLocaleString()} chars
             </span>
           </div>
           <div className="relative min-h-0 flex-1 bg-card/20 p-2">
