@@ -69,13 +69,31 @@ function useCountUp(target: number, duration: number = 800, delay: number = 0) {
 
 export function ResultView({ file, fileUrl, result, onStartOver }: Props) {
   const [markdown, setMarkdown] = useState(result.markdown);
+  const [formatPreset, setFormatPreset] = useState<"markdown" | "claude-xml">("markdown");
   const [copyStatus, setCopyStatus] = useState<"idle" | "copied" | "failed">("idle");
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [showGlow, setShowGlow] = useState(false);
 
   useEffect(() => {
     setMarkdown(result.markdown);
+    setFormatPreset("markdown");
   }, [result.markdown]);
+
+  const handleFormatChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newPreset = e.target.value as "markdown" | "claude-xml";
+    setFormatPreset(newPreset);
+    setMarkdown((prev) => {
+      const xmlPattern = /^<documents>\s*<document>([\s\S]*?)<\/document>\s*<\/documents>$/;
+      const match = prev.match(xmlPattern);
+      if (newPreset === "claude-xml") {
+        if (match) return prev;
+        return `<documents>\n  <document>\n${prev}\n  </document>\n</documents>`;
+      } else {
+        if (match) return match[1].trim();
+        return prev;
+      }
+    });
+  };
 
   const rawTokens = useTokenCount(result.rawText || "");
   const cleanTokens = useTokenCount(markdown || "");
@@ -255,7 +273,17 @@ export function ResultView({ file, fileUrl, result, onStartOver }: Props) {
             </div>
 
             {/* Action Buttons */}
-            <div className="flex items-center gap-3 font-mono text-xs sm:w-auto w-full">
+            <div className="flex flex-wrap items-center gap-3 font-mono text-xs sm:w-auto w-full">
+              <select
+                value={formatPreset}
+                onChange={handleFormatChange}
+                aria-label="Output Format Preset"
+                className="flex-1 sm:flex-initial rounded-md border border-border/80 bg-background/60 px-3 py-2 font-mono text-xs uppercase tracking-wider text-foreground hover:border-brand/60 focus:border-brand focus:outline-none focus:ring-0 cursor-pointer transition-all duration-200"
+              >
+                <option value="markdown" className="bg-background text-foreground">Standard Markdown</option>
+                <option value="claude-xml" className="bg-background text-foreground">Claude XML</option>
+              </select>
+
               <button
                 type="button"
                 onClick={handleCopy}
