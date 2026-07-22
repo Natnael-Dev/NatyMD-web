@@ -115,9 +115,7 @@ function groupIntoLines(items: TextItem[]): Line[] {
   for (const p of sortedPages) {
     const pageItems = byPage.get(p)!;
     if (pageItems.length === 0) continue;
-    const medianH =
-      mode(pageItems.map((i) => i.height || i.fontSize)) ||
-      pageItems[0].fontSize;
+    const medianH = mode(pageItems.map((i) => i.height || i.fontSize)) || pageItems[0].fontSize;
     const tolerance = Math.max(1.5, medianH * 0.4);
 
     const sorted = [...pageItems].sort((a, b) => a.y - b.y || a.x - b.x);
@@ -169,7 +167,7 @@ function joinLineText(items: TextItem[]): string {
     const prev = items[i - 1];
     const prevEnd = prev.x + prev.width;
     const gap = cur.x - prevEnd;
-    const avgChar = Math.max(2, (prev.width / Math.max(1, prev.text.length)) || cur.fontSize * 0.4);
+    const avgChar = Math.max(2, prev.width / Math.max(1, prev.text.length) || cur.fontSize * 0.4);
     const needsSpace = gap > avgChar * 0.35 && !out.endsWith(" ") && !cur.text.startsWith(" ");
     out += (needsSpace ? " " : "") + cur.text;
   }
@@ -219,9 +217,7 @@ function detectTable(lines: Line[], start: number): { end: number; rows: string[
     if (ln.page !== first.page) break;
     if (ln.items.length < cols.length - 1 || ln.items.length > cols.length + 1) break;
     const centers = ln.items.map((it) => it.x + it.width / 2);
-    const aligned = centers.every((c) =>
-      cols.some((col) => Math.abs(col - c) <= 6),
-    );
+    const aligned = centers.every((c) => cols.some((col) => Math.abs(col - c) <= 6));
     if (!aligned) break;
     rows.push(rowFromLine(ln, cols));
     end = i;
@@ -264,7 +260,8 @@ function renderInline(line: Line): string {
       const prevEnd = prev.x + prev.width;
       const gap = it.x - prevEnd;
       const avgChar = Math.max(2, prev.width / Math.max(1, prev.text.length) || it.fontSize * 0.4);
-      const sep = gap > avgChar * 0.35 && !last.text.endsWith(" ") && !it.text.startsWith(" ") ? " " : "";
+      const sep =
+        gap > avgChar * 0.35 && !last.text.endsWith(" ") && !it.text.startsWith(" ") ? " " : "";
       last.text += sep + it.text;
     } else {
       runs.push({ text: it.text, bold: it.bold, italic: it.italic });
@@ -287,11 +284,7 @@ function buildBlocks(lines: Line[], warnings: string[]): Block[] {
 
   const bodySize = mode(lines.map((l) => l.fontSize)) || lines[0].fontSize;
   const distinctLarger = Array.from(
-    new Set(
-      lines
-        .map((l) => Math.round(l.fontSize * 2) / 2)
-        .filter((s) => s > bodySize + 0.5),
-    ),
+    new Set(lines.map((l) => Math.round(l.fontSize * 2) / 2).filter((s) => s > bodySize + 0.5)),
   ).sort((a, b) => b - a);
   const sizeToLevel = new Map<number, 1 | 2 | 3 | 4>();
   distinctLarger.slice(0, 4).forEach((size, i) => {
@@ -314,9 +307,7 @@ function buildBlocks(lines: Line[], warnings: string[]): Block[] {
     const rounded = Math.round(ln.fontSize * 2) / 2;
     const headingLevel = sizeToLevel.get(rounded);
     const looksLikeHeading =
-      headingLevel &&
-      ln.text.length < 120 &&
-      !/[.,;:]$/.test(ln.text.trim());
+      headingLevel && ln.text.length < 120 && !/[.,;:]$/.test(ln.text.trim());
     if (looksLikeHeading) {
       blocks.push({
         kind: "heading",
@@ -440,8 +431,8 @@ export function itemsToMarkdown(
   const blocks = buildBlocks(lines, warnings);
 
   // Stable Figure N across the doc; drop "too-small" records (icon spam).
-  const orderedImages = [...images].sort((a, b) =>
-    a.page - b.page || a.y - b.y || a.index - b.index,
+  const orderedImages = [...images].sort(
+    (a, b) => a.page - b.page || a.y - b.y || a.index - b.index,
   );
   let figureCount = 0;
   let embeddedCount = 0;

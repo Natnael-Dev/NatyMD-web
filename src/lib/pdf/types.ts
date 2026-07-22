@@ -13,17 +13,17 @@ export type TextItem = {
 
 export type OcrProgressFn = (info: {
   phase: "loading" | "recognizing";
-  progress: number;             // 0..1
-  page?: number;                // current page (1-based) during recognizing
-  totalPages?: number;          // scanned page count
-  status?: string;              // raw tesseract status
+  progress: number; // 0..1
+  page?: number; // current page (1-based) during recognizing
+  totalPages?: number; // scanned page count
+  status?: string; // raw tesseract status
 }) => void;
 
 export type ConvertOptions = {
   includeImages?: boolean;
   signal?: AbortSignal;
   ocr?: {
-    enabled?: boolean;          // default: true
+    enabled?: boolean; // default: true
     onOcrProgress?: OcrProgressFn;
     onScannedDetected?: (scannedPages: number[]) => void;
     signal?: AbortSignal;
@@ -55,7 +55,7 @@ export type PageAnalysis = {
 export type ExtractedImage = {
   page: number;
   y: number;
-  index: number;              // stable within the page (paint order)
-  dataUrl?: string;           // present on success
+  index: number; // stable within the page (paint order)
+  dataUrl?: string; // present on success
   error?: "unsupported" | "too-small" | "decode-failed";
 };

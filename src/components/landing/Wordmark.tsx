@@ -21,11 +21,35 @@ export function Wordmark() {
           strokeWidth="1"
         />
         {/* left rail */}
-        <line x1="6" y1="5" x2="6" y2="17" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+        <line
+          x1="6"
+          y1="5"
+          x2="6"
+          y2="17"
+          stroke="currentColor"
+          strokeWidth="1.6"
+          strokeLinecap="round"
+        />
         {/* right rail */}
-        <line x1="16" y1="5" x2="16" y2="17" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+        <line
+          x1="16"
+          y1="5"
+          x2="16"
+          y2="17"
+          stroke="currentColor"
+          strokeWidth="1.6"
+          strokeLinecap="round"
+        />
         {/* diagonal trace */}
-        <line x1="6" y1="5" x2="16" y2="17" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+        <line
+          x1="6"
+          y1="5"
+          x2="16"
+          y2="17"
+          stroke="currentColor"
+          strokeWidth="1.6"
+          strokeLinecap="round"
+        />
         {/* nodes */}
         <circle cx="6" cy="5" r="1.4" fill="currentColor" />
         <circle cx="16" cy="17" r="1.4" fill="currentColor" />

@@ -72,8 +72,7 @@ function Index() {
 
   const handleFile = useCallback(async (file: File) => {
     const nameLower = file.name.toLowerCase();
-    const isPdf =
-      file.type === "application/pdf" || nameLower.endsWith(".pdf");
+    const isPdf = file.type === "application/pdf" || nameLower.endsWith(".pdf");
     const isDocx =
       file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
       nameLower.endsWith(".docx");
@@ -88,7 +87,10 @@ function Index() {
     if (!isPdf && !isDocx && !isText) {
       setState({
         status: "idle",
-        error: { code: "not_pdf", message: "That's not a supported format. Drop a .pdf, .docx, .txt, .md, or .csv file." },
+        error: {
+          code: "not_pdf",
+          message: "That's not a supported format. Drop a .pdf, .docx, .txt, .md, or .csv file.",
+        },
       });
       return;
     }
@@ -230,9 +232,7 @@ function Index() {
       if (prev.status !== "converting") return prev;
       prev.controller.abort();
       // Free the OCR worker + WASM heap immediately; no-op if never loaded.
-      void import("@/lib/pdf/ocr")
-        .then((m) => m.terminateOcrWorker())
-        .catch(() => {});
+      void import("@/lib/pdf/ocr").then((m) => m.terminateOcrWorker()).catch(() => {});
       return { status: "idle", error: null };
     });
   }, []);
@@ -257,13 +257,25 @@ function Index() {
         <div className="pointer-events-none fixed inset-0 z-50 flex flex-col items-center justify-center bg-background/90 backdrop-blur-md transition-all duration-300">
           <div className="flex flex-col items-center gap-4 rounded-2xl border-2 border-dashed border-brand bg-brand/[0.05] p-12 text-center shadow-2xl natymd-glow">
             <span className="flex h-16 w-16 items-center justify-center rounded-full bg-brand/10 text-brand">
-              <svg className="h-8 w-8 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 0115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+              <svg
+                className="h-8 w-8 animate-bounce"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M7 16a4 4 0 01-.88-7.903A5 5 0 0115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                />
               </svg>
             </span>
             <div>
               <p className="font-mono text-lg font-semibold text-brand">// DROP FILE ANYWHERE</p>
-              <p className="mt-1 font-mono text-xs text-muted-foreground">PDF, DOCX, TXT, MD, CSV · Client-Side Compiler</p>
+              <p className="mt-1 font-mono text-xs text-muted-foreground">
+                PDF, DOCX, TXT, MD, CSV · Client-Side Compiler
+              </p>
             </div>
           </div>
         </div>
@@ -282,9 +294,34 @@ function Index() {
         preserveAspectRatio="none"
       >
         <defs>
-          <pattern id="natymd-boxes" x="0" y="0" width="224" height="224" patternUnits="userSpaceOnUse">
-            <rect x="0.5" y="0.5" width="223" height="223" fill="none" stroke="currentColor" strokeOpacity="0.35" strokeWidth="1" />
-            <rect x="56" y="56" width="112" height="112" fill="none" stroke="currentColor" strokeOpacity="0.2" strokeWidth="1" />
+          <pattern
+            id="natymd-boxes"
+            x="0"
+            y="0"
+            width="224"
+            height="224"
+            patternUnits="userSpaceOnUse"
+          >
+            <rect
+              x="0.5"
+              y="0.5"
+              width="223"
+              height="223"
+              fill="none"
+              stroke="currentColor"
+              strokeOpacity="0.35"
+              strokeWidth="1"
+            />
+            <rect
+              x="56"
+              y="56"
+              width="112"
+              height="112"
+              fill="none"
+              stroke="currentColor"
+              strokeOpacity="0.2"
+              strokeWidth="1"
+            />
             <circle cx="112" cy="112" r="2" fill="currentColor" opacity="0.35" />
           </pattern>
         </defs>

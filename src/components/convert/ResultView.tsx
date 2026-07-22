@@ -103,18 +103,15 @@ export function ResultView({ file, fileUrl, result, onStartOver }: Props) {
     file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
     file.name.toLowerCase().endsWith(".docx");
   const isTextFile = !isPdf && !isDocx;
-  const ext = isPdf
-    ? "PDF"
-    : isDocx
-      ? "DOCX"
-      : file.name.split(".").pop()?.toUpperCase() || "TEXT";
+  const ext = isPdf ? "PDF" : isDocx ? "DOCX" : file.name.split(".").pop()?.toUpperCase() || "TEXT";
 
   // For plain text files (.txt, .md, .csv), raw and clean token counts match unless formatting was stripped
   const estimatedRawTokens = isTextFile
     ? Math.max(rawTokens, cleanTokens)
     : Math.max(rawTokens, Math.ceil(cleanTokens * 1.25));
   const savedTokens = Math.max(0, estimatedRawTokens - cleanTokens);
-  const percentSaved = estimatedRawTokens > 0 ? Math.round((savedTokens / estimatedRawTokens) * 100) : 0;
+  const percentSaved =
+    estimatedRawTokens > 0 ? Math.round((savedTokens / estimatedRawTokens) * 100) : 0;
 
   // Staggered animated metric values: Card 1: 0ms delay, Card 2: 120ms delay, Card 3: 240ms delay
   const animatedRawTokens = useCountUp(estimatedRawTokens, 800, 0);
@@ -132,9 +129,12 @@ export function ResultView({ file, fileUrl, result, onStartOver }: Props) {
     }
   }, [estimatedRawTokens]);
 
-  useEffect(() => () => {
-    if (timerRef.current) clearTimeout(timerRef.current);
-  }, []);
+  useEffect(
+    () => () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    },
+    [],
+  );
 
   // Global keyboard shortcut: Ctrl+C or Cmd+C copies markdown text automatically while ResultView is open
   useEffect(() => {
@@ -224,7 +224,10 @@ export function ResultView({ file, fileUrl, result, onStartOver }: Props) {
                 </span>
               </div>
 
-              <span aria-hidden="true" className="hidden font-light text-muted-foreground/20 sm:inline text-lg">
+              <span
+                aria-hidden="true"
+                className="hidden font-light text-muted-foreground/20 sm:inline text-lg"
+              >
                 →
               </span>
 
@@ -242,7 +245,10 @@ export function ResultView({ file, fileUrl, result, onStartOver }: Props) {
                 </span>
               </div>
 
-              <span aria-hidden="true" className="hidden font-light text-muted-foreground/20 sm:inline text-lg">
+              <span
+                aria-hidden="true"
+                className="hidden font-light text-muted-foreground/20 sm:inline text-lg"
+              >
                 →
               </span>
 
@@ -262,7 +268,9 @@ export function ResultView({ file, fileUrl, result, onStartOver }: Props) {
                   {animatedSavedTokens.toLocaleString()}
                   <span
                     className={`font-sans text-[10px] font-semibold tracking-wide uppercase px-1.5 py-0.5 rounded border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 flex items-center gap-1 transition-all duration-300 ${
-                      showGlow ? "animate-bounce shadow-[0_0_8px_rgba(34,197,94,0.4)] border-emerald-500/50" : ""
+                      showGlow
+                        ? "animate-bounce shadow-[0_0_8px_rgba(34,197,94,0.4)] border-emerald-500/50"
+                        : ""
                     }`}
                   >
                     <span>⚡</span>
@@ -280,8 +288,12 @@ export function ResultView({ file, fileUrl, result, onStartOver }: Props) {
                 aria-label="Output Format Preset"
                 className="flex-1 sm:flex-initial rounded-md border border-border/80 bg-background/60 px-3 py-2 font-mono text-xs uppercase tracking-wider text-foreground hover:border-brand/60 focus:border-brand focus:outline-none focus:ring-0 cursor-pointer transition-all duration-200"
               >
-                <option value="markdown" className="bg-background text-foreground">Standard Markdown</option>
-                <option value="claude-xml" className="bg-background text-foreground">Claude XML</option>
+                <option value="markdown" className="bg-background text-foreground">
+                  Standard Markdown
+                </option>
+                <option value="claude-xml" className="bg-background text-foreground">
+                  Claude XML
+                </option>
               </select>
 
               <button
@@ -314,7 +326,8 @@ export function ResultView({ file, fileUrl, result, onStartOver }: Props) {
           <div className="flex items-center gap-1.5 border-t border-border/40 pt-2 font-mono text-[10px] text-muted-foreground/60">
             <Sparkles className="h-3 w-3 text-brand/60" />
             <span>
-              Calculated using OpenAI Tiktoken (cl100k_base standard for GPT-4 / GPT-4o). Savings represent stripped page headers, footers, whitespace, and layout noise.
+              Calculated using OpenAI Tiktoken (cl100k_base standard for GPT-4 / GPT-4o). Savings
+              represent stripped page headers, footers, whitespace, and layout noise.
             </span>
           </div>
         </div>
@@ -351,7 +364,8 @@ export function ResultView({ file, fileUrl, result, onStartOver }: Props) {
 
               <h3 className="font-mono text-sm font-semibold text-foreground">{file.name}</h3>
               <p className="mt-1 font-mono text-xs text-muted-foreground">
-                {(file.size / 1024).toFixed(1)} KB · {isDocx ? "Microsoft Word Document" : `${ext} Document`}
+                {(file.size / 1024).toFixed(1)} KB ·{" "}
+                {isDocx ? "Microsoft Word Document" : `${ext} Document`}
               </p>
 
               <div className="mt-6 flex w-full max-w-sm flex-col gap-2 rounded-lg border border-border/60 bg-background/50 p-4 font-mono text-xs text-muted-foreground">
@@ -367,7 +381,9 @@ export function ResultView({ file, fileUrl, result, onStartOver }: Props) {
                 </div>
                 <div className="flex items-center justify-between">
                   <span>Extracted Length:</span>
-                  <span className="text-foreground">{result.markdown.length.toLocaleString()} chars</span>
+                  <span className="text-foreground">
+                    {result.markdown.length.toLocaleString()} chars
+                  </span>
                 </div>
               </div>
             </div>
@@ -380,9 +396,7 @@ export function ResultView({ file, fileUrl, result, onStartOver }: Props) {
             <span>
               <span className="text-brand">▸</span> output.md
             </span>
-            <span className="shrink-0">
-              {markdown.length.toLocaleString()} chars
-            </span>
+            <span className="shrink-0">{markdown.length.toLocaleString()} chars</span>
           </div>
           <div className="relative min-h-0 flex-1 bg-card/20 p-2">
             <textarea

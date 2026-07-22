@@ -17,10 +17,7 @@ type FontDescriptor = {
   italic?: boolean;
 };
 
-function resolveFontMeta(
-  page: PDFPageProxy,
-  fontName: string,
-): { bold: boolean; italic: boolean } {
+function resolveFontMeta(page: PDFPageProxy, fontName: string): { bold: boolean; italic: boolean } {
   try {
     // `commonObjs.get` is sync only after `has`.
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -31,11 +28,8 @@ function resolveFontMeta(
       .filter(Boolean)
       .map((n) => String(n).toLowerCase());
     const named = nameCandidates.join("|");
-    const bold =
-      Boolean(font?.bold) ||
-      /bold|black|heavy|semibold|demibold/.test(named);
-    const italic =
-      Boolean(font?.italic) || /italic|oblique/.test(named);
+    const bold = Boolean(font?.bold) || /bold|black|heavy|semibold|demibold/.test(named);
+    const italic = Boolean(font?.italic) || /italic|oblique/.test(named);
     return { bold, italic };
   } catch {
     return heuristicFromName(fontName);
@@ -176,10 +170,7 @@ function concatMatrix(m1: number[], m2: number[]): number[] {
   ];
 }
 
-async function resolveImageObject(
-  page: PDFPageProxy,
-  arg: unknown,
-): Promise<PdfImageObj | null> {
+async function resolveImageObject(page: PDFPageProxy, arg: unknown): Promise<PdfImageObj | null> {
   // Inline images pass the object directly.
   if (arg && typeof arg === "object" && "width" in (arg as object)) {
     return arg as PdfImageObj;

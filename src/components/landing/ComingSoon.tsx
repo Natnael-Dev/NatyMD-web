@@ -50,9 +50,7 @@ export function ComingSoon() {
             <h3 className="relative mt-4 text-base font-semibold text-muted-foreground/80">
               {item.title}
             </h3>
-            <p className="relative mt-1.5 text-sm text-muted-foreground/60">
-              {item.description}
-            </p>
+            <p className="relative mt-1.5 text-sm text-muted-foreground/60">{item.description}</p>
           </div>
         ))}
       </div>

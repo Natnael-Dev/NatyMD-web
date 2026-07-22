@@ -146,7 +146,11 @@ export function ScannerAnimation() {
           </g>
 
           {/* Scanner beam: soft band + hard line, translated in Y via keyframes */}
-          <g clipPath="url(#page-clip)" className="natymd-scan-beam" style={{ transformOrigin: "50% 50%" }}>
+          <g
+            clipPath="url(#page-clip)"
+            className="natymd-scan-beam"
+            style={{ transformOrigin: "50% 50%" }}
+          >
             <rect x="40" y="40" width="200" height="18" fill="url(#beam-band)" />
             <line x1="40" y1="49" x2="240" y2="49" stroke="url(#beam-grad)" strokeWidth="1.4" />
             {/* tiny endpoint markers */}
@@ -157,13 +161,7 @@ export function ScannerAnimation() {
           {/* Tick marks on left ruler for a technical feel */}
           <g stroke="var(--color-border)" strokeWidth="0.6">
             {Array.from({ length: 11 }).map((_, i) => (
-              <line
-                key={i}
-                x1={34}
-                x2={i % 5 === 0 ? 40 : 37}
-                y1={45 + i * 15}
-                y2={45 + i * 15}
-              />
+              <line key={i} x1={34} x2={i % 5 === 0 ? 40 : 37} y1={45 + i * 15} y2={45 + i * 15} />
             ))}
           </g>
         </g>

@@ -55,9 +55,10 @@ export function ConvertingPanel({
   const withImages = includeImages
     ? [...BASE_STAGES.slice(0, 3), IMAGE_STAGE, BASE_STAGES[3]]
     : BASE_STAGES;
-  const stages = scannedPages && scannedPages.length > 0
-    ? [...withImages.slice(0, 3), ...OCR_STAGES, ...withImages.slice(3)]
-    : withImages;
+  const stages =
+    scannedPages && scannedPages.length > 0
+      ? [...withImages.slice(0, 3), ...OCR_STAGES, ...withImages.slice(3)]
+      : withImages;
   const activeIndex = stages.findIndex((s) => s.id === stage);
   const frontier = Math.floor(progress * CELLS);
   const pct = Math.round(progress * 100);
@@ -104,9 +105,8 @@ export function ConvertingPanel({
             />
             <div className="flex-1 text-xs leading-relaxed text-foreground/90">
               <p>
-                <span className="font-semibold text-brand">Scanned document detected.</span>{" "}
-                Loading OCR engine (10&nbsp;MB, one-time) — this takes ~5–10s per page.
-                Nothing is uploaded.
+                <span className="font-semibold text-brand">Scanned document detected.</span> Loading
+                OCR engine (10&nbsp;MB, one-time) — this takes ~5–10s per page. Nothing is uploaded.
               </p>
               {stage === "ocr-recognizing" && ocrTotal ? (
                 <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
@@ -148,9 +148,7 @@ export function ConvertingPanel({
                 </span>
                 <span className={pending ? "opacity-60" : ""}>
                   {s.label}
-                  {s.id === "ocr-recognizing" && ocrTotal
-                    ? ` (${ocrPage ?? 0}/${ocrTotal})`
-                    : ""}
+                  {s.id === "ocr-recognizing" && ocrTotal ? ` (${ocrPage ?? 0}/${ocrTotal})` : ""}
                 </span>
               </li>
             );

@@ -112,11 +112,7 @@ export function Dropzone({ onFile, disabled = false, onIncludeImagesChange }: Pr
           aria-hidden="true"
           className={[
             "pointer-events-none absolute inset-4 rounded-md border transition-colors duration-300",
-            active
-              ? "border-brand/40"
-              : isHover
-                ? "border-brand/20"
-                : "border-border/40",
+            active ? "border-brand/40" : isHover ? "border-brand/20" : "border-border/40",
           ].join(" ")}
         />
 
@@ -188,7 +184,13 @@ export function Dropzone({ onFile, disabled = false, onIncludeImagesChange }: Pr
               fill="none"
             />
             <path d="M17 3v5h5" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" />
-            <path d="M10 15h8M10 19h5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" opacity="0.6" />
+            <path
+              d="M10 15h8M10 19h5"
+              stroke="currentColor"
+              strokeWidth="1.2"
+              strokeLinecap="round"
+              opacity="0.6"
+            />
           </svg>
 
           <p
@@ -230,10 +232,7 @@ export function Dropzone({ onFile, disabled = false, onIncludeImagesChange }: Pr
         <span className="h-px w-8 bg-border" />
       </div>
 
-      <div
-        data-slot="conversion-options"
-        className="mt-4 flex min-h-9 items-center justify-center"
-      >
+      <div data-slot="conversion-options" className="mt-4 flex min-h-9 items-center justify-center">
         <IncludeImagesToggle onChange={onIncludeImagesChange} />
       </div>
     </section>

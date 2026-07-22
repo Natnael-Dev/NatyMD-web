@@ -8,8 +8,7 @@ const FEATURES: Feature[] = [
   {
     label: "STRUCTURED",
     title: "Real headings and lists",
-    description:
-      "Preserves document hierarchy — H1s, H2s, bullets, and code blocks stay intact.",
+    description: "Preserves document hierarchy — H1s, H2s, bullets, and code blocks stay intact.",
   },
   {
     label: "TOKEN-EFFICIENT",
@@ -20,8 +19,7 @@ const FEATURES: Feature[] = [
   {
     label: "PRIVATE",
     title: "Nothing leaves your browser",
-    description:
-      "PDFs are parsed locally with WebAssembly — no server, no logging, no history.",
+    description: "PDFs are parsed locally with WebAssembly — no server, no logging, no history.",
   },
 ];
 
@@ -45,12 +43,8 @@ export function FeatureCards() {
               {f.label}
             </span>
           </div>
-          <h3 className="mt-3 text-lg font-semibold tracking-tight text-foreground">
-            {f.title}
-          </h3>
-          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-            {f.description}
-          </p>
+          <h3 className="mt-3 text-lg font-semibold tracking-tight text-foreground">{f.title}</h3>
+          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{f.description}</p>
           {/* bottom scan-line accent on hover */}
           <span
             aria-hidden="true"
