@@ -58,6 +58,9 @@ function Index() {
     return () => window.clearInterval(id);
   }, [state.status, state.status === "converting" ? state.startedAt : 0]);
 
+  const [isGlobalDragActive, setIsGlobalDragActive] = useState(false);
+  const dragCounter = useRef(0);
+
   useEffect(() => {
     return () => {
       if (fileUrlRef.current) {
@@ -177,6 +180,51 @@ function Index() {
     }
   }, []);
 
+  useEffect(() => {
+    const handleDragEnter = (e: DragEvent) => {
+      e.preventDefault();
+      dragCounter.current += 1;
+      if (e.dataTransfer?.types?.includes("Files")) {
+        setIsGlobalDragActive(true);
+      }
+    };
+
+    const handleDragOver = (e: DragEvent) => {
+      e.preventDefault();
+    };
+
+    const handleDragLeave = (e: DragEvent) => {
+      e.preventDefault();
+      dragCounter.current -= 1;
+      if (dragCounter.current <= 0) {
+        dragCounter.current = 0;
+        setIsGlobalDragActive(false);
+      }
+    };
+
+    const handleDrop = (e: DragEvent) => {
+      e.preventDefault();
+      dragCounter.current = 0;
+      setIsGlobalDragActive(false);
+      const droppedFile = e.dataTransfer?.files?.[0];
+      if (droppedFile) {
+        void handleFile(droppedFile);
+      }
+    };
+
+    window.addEventListener("dragenter", handleDragEnter);
+    window.addEventListener("dragover", handleDragOver);
+    window.addEventListener("dragleave", handleDragLeave);
+    window.addEventListener("drop", handleDrop);
+
+    return () => {
+      window.removeEventListener("dragenter", handleDragEnter);
+      window.removeEventListener("dragover", handleDragOver);
+      window.removeEventListener("dragleave", handleDragLeave);
+      window.removeEventListener("drop", handleDrop);
+    };
+  }, [handleFile]);
+
   const handleCancel = useCallback(() => {
     setState((prev) => {
       if (prev.status !== "converting") return prev;
@@ -205,6 +253,21 @@ function Index() {
 
   return (
     <div className="relative flex min-h-screen flex-col overflow-hidden bg-background text-foreground">
+      {isGlobalDragActive && (
+        <div className="pointer-events-none fixed inset-0 z-50 flex flex-col items-center justify-center bg-background/90 backdrop-blur-md transition-all duration-300">
+          <div className="flex flex-col items-center gap-4 rounded-2xl border-2 border-dashed border-brand bg-brand/[0.05] p-12 text-center shadow-2xl natymd-glow">
+            <span className="flex h-16 w-16 items-center justify-center rounded-full bg-brand/10 text-brand">
+              <svg className="h-8 w-8 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 0115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+              </svg>
+            </span>
+            <div>
+              <p className="font-mono text-lg font-semibold text-brand">// DROP FILE ANYWHERE</p>
+              <p className="mt-1 font-mono text-xs text-muted-foreground">PDF, DOCX, TXT, MD, CSV · Client-Side Compiler</p>
+            </div>
+          </div>
+        </div>
+      )}
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 -z-30 opacity-[0.35] [background-image:linear-gradient(to_right,var(--color-border)_1px,transparent_1px),linear-gradient(to_bottom,var(--color-border)_1px,transparent_1px)] [background-size:56px_56px] [mask-image:radial-gradient(ellipse_at_top,black,transparent_75%)]"

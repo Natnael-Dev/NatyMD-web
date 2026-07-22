@@ -118,6 +118,21 @@ export function ResultView({ file, fileUrl, result, onStartOver }: Props) {
     if (timerRef.current) clearTimeout(timerRef.current);
   }, []);
 
+  // Global keyboard shortcut: Ctrl+C or Cmd+C copies markdown text automatically while ResultView is open
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "c") {
+        const selection = window.getSelection()?.toString();
+        if (!selection || selection.length === 0) {
+          e.preventDefault();
+          void handleCopy();
+        }
+      }
+    }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [markdown]);
+
   async function handleCopy() {
     const success = await copyToClipboard(markdown);
     if (success) {
